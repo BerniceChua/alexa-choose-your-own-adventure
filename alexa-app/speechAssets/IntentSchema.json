@@ -16,6 +16,9 @@
       "intent": "AMAZON.CancelIntent"
     },
     {
+      "intent": "AMAZON.StartOverIntent"
+    }
+    {
       "intent": "AMAZON.StopIntent"
     }
 
