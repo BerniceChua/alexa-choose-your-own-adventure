@@ -19,10 +19,19 @@ exports.handler = function (event, context) {
         */
 
         if (event.session.new) {
+            console.log("I'm in event.session.new!!!!!!!!!!!!!!!!!!!!!!!");
             onSessionStarted({requestId: event.request.requestId}, event.session);
         }
 
+        console.log("event.request.type??????????");
+        console.log(event.request.type);
+        console.log("event.request??????????");
+        console.log(event.request);
+        console.log("event.session??????????");
+        console.log(event.session);
+
         if (event.request.type === "LaunchRequest") {
+            console.log("I'm in LaunchRequest event.request.type!!!!!!!!!!!!!!!!!!!!!!!");
             onLaunch(event.request,
                 event.session,
                 function callback(sessionAttributes, speechletResponse) {
@@ -59,6 +68,8 @@ function onLaunch(launchRequest, session, callback) {
         ", sessionId=" + session.sessionId);
 
     // Dispatch to your skill's launch.
+    console.log("What's in onLaunch??????????????????????????????");
+    
     getWelcomeResponse(callback);
 }
 
@@ -74,9 +85,7 @@ function onIntent(intentRequest, session, callback) {
 
     // Dispatch to your skill's intent handlers
     if ("ChooseYourOwnAdventureIntent" === intentName) {
-        setColorInSession(intent, session, callback);
-    } else if ("ChooseMyOwnAdventureIntent" === intentName) {
-        getColorFromSession(intent, session, callback);
+        playAdventure(intent, session, callback);
     } else if ("AMAZON.HelpIntent" === intentName) {
         getWelcomeResponse(callback);
     } else if ("AMAZON.StopIntent" === intentName || "AMAZON.CancelIntent" === intentName) {
@@ -109,6 +118,8 @@ function getWelcomeResponse(callback) {
     var repromptText = "Please say start to play Choose Your Own Adventure.";
     var shouldEndSession = false;
 
+    console.log("I'm in getWelcomeResponse!!!!!!!");
+
     callback(sessionAttributes,
         buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
 }
@@ -125,53 +136,50 @@ function handleSessionEndRequest(callback) {
 /**
  * Sets the color in the session and prepares the speech to reply to the user.
  */
-function setColorInSession(intent, session, callback) {
+function playAdventure(intent, session, callback) {
     var cardTitle = intent.name;
-    var favoriteColorSlot = intent.slots.Color;
+    var listOfCommandsSlot = intent.slots.Command;
     var repromptText = "";
     var sessionAttributes = {};
     var shouldEndSession = false;
     var speechOutput = "";
 
-    if (favoriteColorSlot) {
-        var favoriteColor = favoriteColorSlot.value;
-        sessionAttributes = createFavoriteColorAttributes(favoriteColor);
-        speechOutput = "I now know your favorite color is " + favoriteColor + ". You can ask me " +
-            "your favorite color by saying, what's my favorite color?";
-        repromptText = "You can ask me your favorite color by saying, what's my favorite color?";
+    if (listOfCommandsSlot) {
+        var playerAction = listOfCommandsSlot.value;
+        sessionAttributes = createplayerActionAttributes(playerAction);
+        speechOutput = "You have chosen " + playerAction + ".";
+        repromptText = "What do you want to do next?";
     } else {
-        speechOutput = "I'm not sure what your favorite color is. Please try again";
-        repromptText = "I'm not sure what your favorite color is. You can tell me your " +
-            "favorite color by saying, my favorite color is red";
+        speechOutput = "That's not a possible action. Please try again";
+        repromptText = "That's not a possible action. Please say what you want to do.";
     }
 
     callback(sessionAttributes,
          buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
 }
 
-function createFavoriteColorAttributes(favoriteColor) {
+function createplayerActionAttributes(playerAction) {
     return {
-        favoriteColor: favoriteColor
+        playerAction: playerAction
     };
 }
 
 function getColorFromSession(intent, session, callback) {
-    var favoriteColor;
+    var playerAction;
     var repromptText = null;
     var sessionAttributes = {};
     var shouldEndSession = false;
     var speechOutput = "";
 
     if (session.attributes) {
-        favoriteColor = session.attributes.favoriteColor;
+        playerAction = session.attributes.playerAction;
     }
 
-    if (favoriteColor) {
-        speechOutput = "Your favorite color is " + favoriteColor + ". Goodbye.";
+    if (playerAction) {
+        speechOutput = "You have chosen to " + playerAction + ".";
         shouldEndSession = true;
     } else {
-        speechOutput = "I'm not sure what your favorite color is, you can say, my favorite color " +
-            " is red";
+        speechOutput = "I'm not sure what you mean.  You can say help for a list of options.";
     }
 
     // Setting repromptText to null signifies that we do not want to reprompt the user.
@@ -186,18 +194,18 @@ function getColorFromSession(intent, session, callback) {
 function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
     return {
         outputSpeech: {
-            "type": "SSML",
-            "ssml": output
+            type: "PlainText",
+            text: output
         },
         card: {
-            "type": "Choose Your Own Adventure",
+            type: "Simple",
             title: "SessionSpeechlet - " + title,
             content: "SessionSpeechlet - " + output
         },
         reprompt: {
             outputSpeech: {
-                "type": "SSML",
-                "ssml": repromptText
+                type: "PlainText",
+                text: repromptText
             }
         },
         shouldEndSession: shouldEndSession

@@ -17,7 +17,7 @@
     },
     {
       "intent": "AMAZON.StartOverIntent"
-    }
+    },
     {
       "intent": "AMAZON.StopIntent"
     }
