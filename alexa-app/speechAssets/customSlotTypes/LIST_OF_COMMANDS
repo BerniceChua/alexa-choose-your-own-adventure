@@ -8,6 +8,9 @@ south
 east
 west
 fight
+attack
+defend
+use magic
 escape
 sword
 shield
