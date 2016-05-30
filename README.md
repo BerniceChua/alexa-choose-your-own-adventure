@@ -2,7 +2,7 @@
 
 ## About
 
-A "Dungeons & Dragons"-type game (with visuals! ^_^), where the user controls the player character by speaking the commands to Alexa.
+A "Dungeons & Dragons"-type MUDD game, where the user controls the player character by speaking the commands to Alexa.  (With visuals! ^_^)
 
 To begin, say "Alexa, play choose my own adventure."
 

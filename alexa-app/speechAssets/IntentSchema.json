@@ -1,7 +1,7 @@
 {
   "intents": [
     {
-      "intent": "CommandIntent",
+      "intent": "ChooseYourOwnAdventureIntent",
       "slots": [
         {
           "name": "Command",
@@ -13,7 +13,14 @@
       "intent": "AMAZON.HelpIntent"
     },
     {
+      "intent": "AMAZON.CancelIntent"
+    },
+    {
+      "intent": "AMAZON.StartOverIntent"
+    },
+    {
       "intent": "AMAZON.StopIntent"
     }
+
   ]
 }
