@@ -4,6 +4,10 @@
  * accompanying visuals.
  */
 
+var AWS = require("aws-sdk");
+AWS.config.region = 'us-east-1';
+var sqsURL = 'https://sqs.us-east-1.amazonaws.com/273311260716/chooseyourownadventure';
+
 exports.handler = function (event, context) {
     try {
         console.log("event.session.application.applicationId=" + event.session.application.applicationId);
@@ -19,19 +23,10 @@ exports.handler = function (event, context) {
         */
 
         if (event.session.new) {
-            console.log("I'm in event.session.new!!!!!!!!!!!!!!!!!!!!!!!");
             onSessionStarted({requestId: event.request.requestId}, event.session);
         }
 
-        console.log("event.request.type??????????");
-        console.log(event.request.type);
-        console.log("event.request??????????");
-        console.log(event.request);
-        console.log("event.session??????????");
-        console.log(event.session);
-
         if (event.request.type === "LaunchRequest") {
-            console.log("I'm in LaunchRequest event.request.type!!!!!!!!!!!!!!!!!!!!!!!");
             onLaunch(event.request,
                 event.session,
                 function callback(sessionAttributes, speechletResponse) {
@@ -68,7 +63,6 @@ function onLaunch(launchRequest, session, callback) {
         ", sessionId=" + session.sessionId);
 
     // Dispatch to your skill's launch.
-    console.log("What's in onLaunch??????????????????????????????");
     
     getWelcomeResponse(callback);
 }
@@ -111,14 +105,13 @@ function getWelcomeResponse(callback) {
     // If we wanted to initialize the session to have some attributes we could add those here.
     var sessionAttributes = {};
     var cardTitle = "Welcome";
-    var speechOutput = "It's time to play Choose Your Own Adventure. " +
+    var speechOutput = "It's time to play Choose Your Own Adventure.  " +
+        "For optional visuals, please click on the link of your Alexa Companion App, or go to chooseyouradventure.herokuapp.com.  " +
         "Please say start to begin the game.";
     // If the user either does not reply to the welcome message or says something that is not
     // understood, they will be prompted again with this text.
     var repromptText = "Please say start to play Choose Your Own Adventure.";
     var shouldEndSession = false;
-
-    console.log("I'm in getWelcomeResponse!!!!!!!");
 
     callback(sessionAttributes,
         buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
@@ -149,6 +142,22 @@ function playAdventure(intent, session, callback) {
         sessionAttributes = createplayerActionAttributes(playerAction);
         speechOutput = "You have chosen " + playerAction + ".";
         repromptText = "What do you want to do next?";
+
+        //
+        // write to SQS
+        //
+        
+        var queueUrl = sqsURL;
+        var queue = new AWS.SQS({params: {QueueUrl: queueUrl.toString()}});
+        var params = {
+            MessageBody: "message is " + favoriteColor
+        }
+        
+        queue.sendMessage(params, function (err, data){
+            if (err) console.log(err, err.stack);
+            else {
+                console.log("message Sent");
+                
     } else {
         speechOutput = "That's not a possible action. Please try again";
         repromptText = "That's not a possible action. Please say what you want to do.";
@@ -198,8 +207,8 @@ function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
             text: output
         },
         card: {
-            type: "Simple",
-            title: "SessionSpeechlet - " + title,
+            type: "Standard",
+            title: title,
             content: "SessionSpeechlet - " + output
         },
         reprompt: {
