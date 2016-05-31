@@ -4,6 +4,10 @@
  * accompanying visuals.
  */
 
+var AWS = require("aws-sdk");
+AWS.config.region = 'us-east-1';
+var sqsURL = 'REPLACE_THIS';
+​
 exports.handler = function (event, context) {
     try {
         console.log("event.session.application.applicationId=" + event.session.application.applicationId);
