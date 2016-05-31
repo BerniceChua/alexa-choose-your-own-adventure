@@ -6,8 +6,8 @@
 
 var AWS = require("aws-sdk");
 AWS.config.region = 'us-east-1';
-var sqsURL = 'REPLACE_THIS';
-​
+var sqsURL = 'https://sqs.us-east-1.amazonaws.com/273311260716/chooseyourownadventure';
+
 exports.handler = function (event, context) {
     try {
         console.log("event.session.application.applicationId=" + event.session.application.applicationId);
@@ -142,6 +142,22 @@ function playAdventure(intent, session, callback) {
         sessionAttributes = createplayerActionAttributes(playerAction);
         speechOutput = "You have chosen " + playerAction + ".";
         repromptText = "What do you want to do next?";
+
+        //
+        // write to SQS
+        //
+        
+        var queueUrl = sqsURL;
+        var queue = new AWS.SQS({params: {QueueUrl: queueUrl.toString()}});
+        var params = {
+            MessageBody: "message is " + favoriteColor
+        }
+        
+        queue.sendMessage(params, function (err, data){
+            if (err) console.log(err, err.stack);
+            else {
+                console.log("message Sent");
+                
     } else {
         speechOutput = "That's not a possible action. Please try again";
         repromptText = "That's not a possible action. Please say what you want to do.";
@@ -191,8 +207,8 @@ function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
             text: output
         },
         card: {
-            type: "Simple",
-            title: "SessionSpeechlet - " + title,
+            type: "Standard",
+            title: title,
             content: "SessionSpeechlet - " + output
         },
         reprompt: {
