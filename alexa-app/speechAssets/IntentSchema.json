@@ -1,0 +1,26 @@
+{
+  "intents": [
+    {
+      "intent": "ChooseYourOwnAdventureIntent",
+      "slots": [
+        {
+          "name": "Command",
+          "type": "LIST_OF_COMMANDS"
+        }
+      ]
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    },
+    {
+      "intent": "AMAZON.StartOverIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    }
+
+  ]
+}
